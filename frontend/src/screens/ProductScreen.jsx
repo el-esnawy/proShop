@@ -1,69 +1,133 @@
-import React from "react";
+import React, { useEffect } from "react";
+import QuantityList from "../components/QuantityList";
 import { Link } from "react-router-dom";
 import { Row, Col, Image, ListGroup, Card, Button } from "react-bootstrap";
 import Rating from "../components/Rating";
-import products from "../products";
+import { useDispatch, useSelector } from "react-redux";
+import { listProductDetails } from "../actions/productActions";
+import Loader from "../components/Loader";
+import Message from "../components/Message";
 
-const ProductScreen = ({ match }) => {
-  const product = products.find((p) => p._id === match.params.id);
+const ProductScreen = ({ match, history }) => {
+  const qty = React.useRef(1);
+
+  const { product, loading, error } = useSelector(
+    (state) => state.productDetails,
+  );
+  const dispatch = useDispatch();
+  const addToCartHandler = () => {
+    history.push(`/cart/${match.params.id}?qty=${qty.current}`);
+  };
+
+  const setQty = (value) => {
+    qty.current = parseInt(value);
+  };
+
+  useEffect(() => {
+    dispatch(listProductDetails.bind(this, dispatch, match.params.id));
+  }, [dispatch, match]);
+
+  const ProductDetailComponent = ({ product }) => {
+    return (
+      <React.Fragment>
+        <Row>
+          <Col md={6}>
+            <Image src={product.image} alt={product.name} fluid></Image>
+          </Col>
+          <Col md={3}>
+            <ListGroup.Item>
+              <h3>{product.name}</h3>
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <Rating
+                value={product.rating}
+                text={`${product.numReviews} Review`}
+              />
+            </ListGroup.Item>
+            <ListGroup.Item>Price: ${product.price}</ListGroup.Item>
+            <ListGroup.Item>Description: {product.description}</ListGroup.Item>
+          </Col>
+          <Col md={3}>
+            <Card>
+              <ListGroup variant='flush'>
+                <ListGroup.Item>
+                  <Row>
+                    <Col>Price:</Col>
+                    <Col>
+                      <strong>${product.price}</strong>
+                    </Col>
+                  </Row>
+                </ListGroup.Item>
+
+                <ListGroup.Item>
+                  <Row>
+                    <Col>Status: </Col>
+                    <Col>
+                      {product.countInStock > 0 ? "In Stock" : "Out Of Stock"}
+                    </Col>
+                  </Row>
+                </ListGroup.Item>
+                {product.countInStock > 0 && (
+                  <ListGroup.Item>
+                    <Row>
+                      <QuantityList
+                        qty={qty.current}
+                        setQty={setQty}
+                        product={product}
+                        activeNumber={qty.current}
+                      />
+                    </Row>
+                  </ListGroup.Item>
+                )}
+
+                <ListGroup.Item>
+                  <Button
+                    onClick={addToCartHandler}
+                    className='btn-block'
+                    type='button'
+                    disabled={product.countInStock === 0}>
+                    Add To Cart
+                  </Button>
+                </ListGroup.Item>
+              </ListGroup>
+            </Card>
+          </Col>
+        </Row>
+      </React.Fragment>
+    );
+  };
 
   return (
     <React.Fragment>
       <Link className='btn btn-light my-3' to='/'>
         Go Back
       </Link>
-      <Row>
-        <Col md={6}>
-          <Image src={product.image} alt={product.name} fluid></Image>
-        </Col>
-        <Col md={3}>
-          <ListGroup.Item>
-            <h3>{product.name}</h3>
-          </ListGroup.Item>
-          <ListGroup.Item>
-            <Rating
-              value={product.rating}
-              text={`${product.numReviews} Review`}
-            />
-          </ListGroup.Item>
-          <ListGroup.Item>Price: ${product.price}</ListGroup.Item>
-          <ListGroup.Item>Description: {product.description}</ListGroup.Item>
-        </Col>
-        <Col md={3}>
-          <Card>
-            <ListGroup variant='flush'>
-              <ListGroup.Item>
-                <Row>
-                  <Col>Price:</Col>
-                  <Col>
-                    <strong>${product.price}</strong>
-                  </Col>
-                </Row>
-              </ListGroup.Item>
 
-              <ListGroup.Item>
-                <Row>
-                  <Col>Status: </Col>
-                  <Col>
-                    {product.countInStock > 0 ? "In Stock" : "Out Of Stock"}
-                  </Col>
-                </Row>
-              </ListGroup.Item>
-
-              <ListGroup.Item>
-                <Button
-                  className='btn-block'
-                  type='button'
-                  disabled={product.countInStock === 0}>
-                  Add To Cart
-                </Button>
-              </ListGroup.Item>
-            </ListGroup>
-          </Card>
-        </Col>
-      </Row>
+      {loading ? (
+        <Loader />
+      ) : error ? (
+        <Message variant='danger'>{error}</Message>
+      ) : (
+        <ProductDetailComponent product={product} />
+      )}
     </React.Fragment>
   );
 };
 
 export default ProductScreen;
+/*
+     <Col>QTY</Col>
+                      <Col>
+<Form.Control
+  as='select'
+  value={qty}
+  onChange={(e) => {
+    setQty(e.target.value);
+  }}>
+  {[...Array(product.countInStock).keys()].map((x) => (
+    <option key={x + 1} value={x + 1}>
+      {x + 1}
+    </option>
+  ))}
+</Form.Control></Col>
+*/

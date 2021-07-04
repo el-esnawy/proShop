@@ -1,0 +1,44 @@
+{
+  "name": "proshop",
+  "version": "1.0.0",
+  "description": "MERN",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start:server": "node backend/server.js",
+    "server": "nodemon backend/server.js",
+    "client": "npm start --prefix frontend",
+    "start:dev": "concurrently \"npm run server\" \"npm run client\"",
+    "data:import": "node backend/seeder --import",
+    "data:destroy": "node backend/seeder -d"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/el-esnawy/proshop.git"
+  },
+  "author": "Mohamed El-Esnawy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/el-esnawy/proshop/issues"
+  },
+  "homepage": "https://github.com/el-esnawy/proshop#readme",
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.6.0",
+    "axios": "^0.21.1",
+    "bcryptjs": "^2.4.3",
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-async-handler": "^1.1.4",
+    "mongoose": "^5.13.1",
+    "react-redux": "^7.2.4",
+    "redux": "^4.1.0",
+    "redux-devtools-extension": "^2.13.9",
+    "redux-thunk": "^2.3.0"
+  },
+  "devDependencies": {
+    "concurrently": "^6.2.0",
+    "nodemon": "^2.0.9"
+  }
+}
