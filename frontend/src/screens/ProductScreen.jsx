@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import QuantityList from "../components/QuantityList";
+
 import { Link } from "react-router-dom";
 import { Row, Col, Image, ListGroup, Card, Button } from "react-bootstrap";
 import Rating from "../components/Rating";
@@ -24,7 +25,7 @@ const ProductScreen = ({ match, history }) => {
   };
 
   useEffect(() => {
-    dispatch(listProductDetails.bind(this, dispatch, match.params.id));
+    dispatch(listProductDetails.bind(null, dispatch, match.params.id));
   }, [dispatch, match]);
 
   const ProductDetailComponent = ({ product }) => {

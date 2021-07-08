@@ -15,10 +15,8 @@ const CartScreen = ({ match, location, history }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (productId && qty) {
-      dispatch(addToCart(productId, qty));
-    }
-  }, [dispatch, productId, qty]);
+    dispatch(addToCart(productId, qty));
+  }, [dispatch, productId, qty, match.params]);
 
   const updateQty = (ID, QTY) => {
     dispatch(addToCart(ID, Number(QTY)));
@@ -55,17 +53,13 @@ const CartScreen = ({ match, location, history }) => {
                 <ListGroup.Item key={item.product}>
                   <Row>
                     <Col md={2}>
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fluid
-                        rounded></Image>
+                      <Image src={item.image} alt={item.name} fluid rounded />
                     </Col>
-                    <Col md={3}>
+                    <Col md={4}>
                       <Link to={`/product/${item.product}`}>{item.name}</Link>
                     </Col>
-                    <Col md={1}>${item.price}</Col>
-                    <Col md={4}>
+                    <Col md={2}>$ {item.price}</Col>
+                    <Col md={2}>
                       <QuantityList
                         variant='light'
                         style={{

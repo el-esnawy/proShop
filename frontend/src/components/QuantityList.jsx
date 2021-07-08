@@ -2,7 +2,12 @@ import React from "react";
 import { Dropdown } from "react-bootstrap";
 
 const QuantityList = ({ product, setQty, qty, variant }) => {
-  const [currentQty, setCurrentQty] = React.useState(qty);
+  const [currentQty, setCurrentQty] = React.useState(0);
+
+  React.useEffect(() => {
+    setCurrentQty(qty);
+  }, [qty]);
+
   const selectHandler = (e) => {
     setCurrentQty(parseInt(e));
     setQty(e);
