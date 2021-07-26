@@ -44,7 +44,6 @@ export const listProducts = (dispatch, getState) => {
 };
 
 export const listProductDetails = (dispatch, id) => {
-  console.log(this);
   const list = async (dispatch, id) => {
     try {
       dispatch({ type: PRODUCT_DETAILS_REQUEST });

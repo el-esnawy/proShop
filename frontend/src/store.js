@@ -14,7 +14,10 @@ import {
   userRegisterReducer,
   userUpdateProfile,
 } from "./reducers/userReducer";
-import { orderCreateReducer } from "./reducers/orderReducers";
+import {
+  orderCreateReducer,
+  orderDetailReducers,
+} from "./reducers/orderReducers";
 import { userDetailsrReducer } from "./reducers/userReducer";
 import { cartReducer } from "./reducers/cartReducers";
 
@@ -51,6 +54,7 @@ const reducer = {
   userDetails: userDetailsrReducer,
   userUpdateProfile: userUpdateProfile,
   orderCreate: orderCreateReducer,
+  orderDetails: orderDetailReducers,
 };
 const middleware = [thunk];
 

@@ -2,89 +2,60 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button, Row, Col, ListGroup, Image, Card } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
-import { createOrder } from "../actions/orderActions";
-import { removeFromCart } from "../actions/cartActions";
+import { getOrderDetails } from "../actions/orderActions";
+import Loader from "../components/Loader";
 
 import Message from "../components/Message";
-import CheckoutSteps from "../components/CheckoutSteps";
 
-const PlaceOrderScreen = ({ history }) => {
+const OrderScreen = ({ match }) => {
+  const orderId = match.params.id;
   const dispatch = useDispatch();
-  const cart = useSelector((state) => state.cart);
-  const addDecimals = (num) => {
-    return (Math.round(num * 100) / 100).toFixed(2);
-  };
-
-  //Calculate Prices
-
-  cart.itemsPrice = addDecimals(
-    cart.cartItems.reduce((acc, item) => acc + item.price * item.qty, 0),
-  );
-
-  cart.shippingPrice = addDecimals(cart.itemsPrice * 0.12);
-  cart.taxPrice = addDecimals(Number((0.15 * cart.itemsPrice).toFixed(2)));
-
-  cart.totalPrice = (
-    Number(cart.itemsPrice) +
-    Number(cart.shippingPrice) +
-    Number(cart.taxPrice)
-  ).toFixed(2);
-
-  const orderCreate = useSelector((state) => state.orderCreate);
-  const { order, success, error } = orderCreate;
+  const orderDetails = useSelector((state) => state.orderDetails);
+  const { order, loading, error } = orderDetails;
 
   useEffect(() => {
-    if (success) {
-      history.push(`/order/${order._id}`);
-      cart.cartItems.forEach((item) => dispatch(removeFromCart(item.product)));
-    }
-    if (error) {
-    }
-    // eslint-disable-next-line
-  }, [history, success]);
+    dispatch(getOrderDetails(orderId));
+  }, [dispatch, orderId]);
 
-  const placeOrderHandler = () => {
-    dispatch(
-      createOrder({
-        orderItems: cart.cartItems,
-        shippingAddress: cart.shippingAddress,
-        paymentMethod: cart.paymentMethod,
-        itemsPrice: cart.itemsPrice,
-        shippingPrice: cart.shippingPrice,
-        taxPrice: cart.taxPrice,
-        totalPrice: cart.totalPrice,
-      }),
-    );
-  };
-  return (
+  return loading ? (
+    <Loader />
+  ) : error ? (
+    <Message variant='danger'>{error}</Message>
+  ) : (
     <>
-      <CheckoutSteps step1 step2 step3 step4 />
+      <h1>Order: {order._id}</h1>
       <Row>
         <Col md={8}>
           <ListGroup variant='flush'>
             <ListGroup.Item>
               <h2>Shipping</h2>
+              <strong>Name: </strong>
+              {order.user.name}
+              <br></br>
+              <a href={`mailto:${order.user.email}`}>
+                Email: {order.user.email}
+              </a>
               <p>
                 <strong>Address: </strong>
-                {cart.shippingAddress.address}, {cart.shippingAddress.city},{" "}
-                {cart.shippingAddress.postalCode},{" "}
-                {cart.shippingAddress.country}
+                {order.shippingAddress.address}, {order.shippingAddress.city},{" "}
+                {order.shippingAddress.postalCode},{" "}
+                {order.shippingAddress.country}
               </p>
             </ListGroup.Item>
 
             <ListGroup.Item>
               <h2> Payment Method</h2>
               <strong> Method: </strong>
-              {cart.paymentMethod}
+              {order.paymentMethod}
             </ListGroup.Item>
 
             <ListGroup.Item>
               <h2>Order Items</h2>
-              {cart.cartItems.length === 0 ? (
-                <Message>Your Cart is Empty</Message>
+              {order.orderItems.length === 0 ? (
+                <Message>No Order</Message>
               ) : (
                 <ListGroup variant='flush'>
-                  {cart.cartItems.map((item) => (
+                  {order.orderItems.map((item) => (
                     <ListGroup.Item key={item.product}>
                       <Row>
                         <Col md={1}>
@@ -124,41 +95,38 @@ const PlaceOrderScreen = ({ history }) => {
               <ListGroup.Item>
                 <Row>
                   <Col>Items</Col>
-                  <Col>$ {Number(cart.itemsPrice).toLocaleString("en-US")}</Col>
+                  <Col>
+                    $ {Number(order.itemsPrice).toLocaleString("en-US")}
+                  </Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>
                 <Row>
                   <Col>Shipping</Col>
+
                   <Col>
-                    $ {Number(cart.shippingPrice).toLocaleString("en-US")}
+                    $ {Number(order.shippingPrice).toLocaleString("en-US")}
                   </Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>
                 <Row>
                   <Col>Tax</Col>
-                  <Col>$ {Number(cart.taxPrice).toLocaleString("en-US")}</Col>
+                  <Col>$ {Number(order.taxPrice).toLocaleString("en-US")}</Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>
                 <Row>
                   <Col>Total</Col>
-                  <Col>$ {Number(cart.totalPrice).toLocaleString("en-US")}</Col>
+                  <Col>
+                    $ {Number(order.totalPrice).toLocaleString("en-US")}
+                  </Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>
                 {error && <Message variant='danger'>{error}</Message>}
               </ListGroup.Item>
-              <ListGroup.Item>
-                <Button
-                  type='button'
-                  className='btn-block'
-                  disabled={cart.cartItems.length === 0}
-                  onClick={placeOrderHandler}>
-                  Place Order
-                </Button>
-              </ListGroup.Item>
+              <ListGroup.Item></ListGroup.Item>
             </ListGroup>
           </Card>
         </Col>
@@ -167,4 +135,4 @@ const PlaceOrderScreen = ({ history }) => {
   );
 };
 
-export default PlaceOrderScreen;
+export default OrderScreen;
