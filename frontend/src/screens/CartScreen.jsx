@@ -27,9 +27,7 @@ const CartScreen = ({ match, location, history }) => {
   };
 
   const getTotalAmount = () => {
-    const total = cartItems
-      .reduce((acc, item) => acc + item.qty * item.price, 0)
-      .toFixed(2);
+    const total = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2);
 
     return total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
@@ -73,13 +71,8 @@ const CartScreen = ({ match, location, history }) => {
                       />
                     </Col>
                     <Col md={2}>
-                      <Button
-                        type='button'
-                        variant='light'
-                        onClick={() => removeFromCartHandler(item.product)}>
-                        <i
-                          className='fas fa-trash'
-                          style={{ fontSize: "16px" }}></i>
+                      <Button type='button' variant='light' onClick={() => removeFromCartHandler(item.product)}>
+                        <i className='fas fa-trash' style={{ fontSize: "16px" }}></i>
                       </Button>
                     </Col>
                   </Row>
@@ -94,21 +87,14 @@ const CartScreen = ({ match, location, history }) => {
         <Card>
           <ListGroup variant='flush'>
             <ListGroup.Item>
-              <h2>
-                Subtotal ({cartItems.reduce((acc, item) => acc + item.qty, 0)})
-                items{" "}
-              </h2>
+              <h2>Subtotal ({cartItems.reduce((acc, item) => acc + item.qty, 0)}) items </h2>
               <h3 className='bold-text'>
                 $&nbsp;
                 {getTotalAmount()}
               </h3>
             </ListGroup.Item>
             <ListGroup.Item>
-              <Button
-                type='button'
-                className='btn-block'
-                disabled={cartItems.length === 0}
-                onClick={checkoutHandler}>
+              <Button type='button' className='btn-block' disabled={cartItems.length === 0} onClick={checkoutHandler}>
                 Proceed to Checkout
               </Button>
             </ListGroup.Item>

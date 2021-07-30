@@ -11,11 +11,14 @@ import Message from "../components/Message";
 
 const ProductScreen = ({ match, history }) => {
   const qty = React.useRef(1);
-
-  const { product, loading, error } = useSelector(
-    (state) => state.productDetails,
-  );
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(listProductDetails.bind(null, dispatch, match.params.id));
+  }, [dispatch, match]);
+
+  const { product, loading, error } = useSelector((state) => state.productDetails);
+
   const addToCartHandler = () => {
     history.push(`/cart/${match.params.id}?qty=${qty.current}`);
   };
@@ -23,10 +26,6 @@ const ProductScreen = ({ match, history }) => {
   const setQty = (value) => {
     qty.current = parseInt(value);
   };
-
-  useEffect(() => {
-    dispatch(listProductDetails.bind(null, dispatch, match.params.id));
-  }, [dispatch, match]);
 
   const ProductDetailComponent = ({ product }) => {
     return (
@@ -40,10 +39,7 @@ const ProductScreen = ({ match, history }) => {
               <h3>{product.name}</h3>
             </ListGroup.Item>
             <ListGroup.Item>
-              <Rating
-                value={product.rating}
-                text={`${product.numReviews} Review`}
-              />
+              <Rating value={product.rating} text={`${product.numReviews} Review`} />
             </ListGroup.Item>
             <ListGroup.Item>Price: ${product.price}</ListGroup.Item>
             <ListGroup.Item>Description: {product.description}</ListGroup.Item>
@@ -63,20 +59,13 @@ const ProductScreen = ({ match, history }) => {
                 <ListGroup.Item>
                   <Row>
                     <Col>Status: </Col>
-                    <Col>
-                      {product.countInStock > 0 ? "In Stock" : "Out Of Stock"}
-                    </Col>
+                    <Col>{product.countInStock > 0 ? "In Stock" : "Out Of Stock"}</Col>
                   </Row>
                 </ListGroup.Item>
                 {product.countInStock > 0 && (
                   <ListGroup.Item>
                     <Row>
-                      <QuantityList
-                        qty={qty.current}
-                        setQty={setQty}
-                        product={product}
-                        activeNumber={qty.current}
-                      />
+                      <QuantityList qty={qty.current} setQty={setQty} product={product} activeNumber={qty.current} />
                     </Row>
                   </ListGroup.Item>
                 )}

@@ -1,8 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { PayPalButton } from "react-paypal-button-v2";
+import axios from "axios";
 import { Link } from "react-router-dom";
-import { Button, Row, Col, ListGroup, Image, Card } from "react-bootstrap";
+import { Row, Col, ListGroup, Image, Card } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
-import { getOrderDetails } from "../actions/orderActions";
+import { getOrderDetails, payOrder } from "../actions/orderActions";
+import { ORDER_PAY_RESET } from "../constants/orderConstants";
 import Loader from "../components/Loader";
 
 import Message from "../components/Message";
@@ -10,13 +13,47 @@ import Message from "../components/Message";
 const OrderScreen = ({ match }) => {
   const orderId = match.params.id;
   const dispatch = useDispatch();
+
   const orderDetails = useSelector((state) => state.orderDetails);
   const { order, loading, error } = orderDetails;
+
+  const [sdkReady, setSDKReady] = useState(false);
+
+  const orderPay = useSelector((state) => state.orderPay);
+  const { loading: loadingPay, success: successPay } = orderPay;
 
   useEffect(() => {
     dispatch(getOrderDetails(orderId));
   }, [dispatch, orderId]);
 
+  useEffect(() => {
+    const addPayPalScript = async () => {
+      const { data: clientId } = await axios.get("/api/config/paypal");
+      const script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}`;
+      script.async = true;
+      script.onload = () => {
+        setSDKReady(true);
+      };
+      document.body.appendChild(script);
+    };
+
+    if (!order || successPay) {
+      dispatch({ type: ORDER_PAY_RESET });
+      dispatch(getOrderDetails(orderId));
+    } else if (!order.isPaid) {
+      if (!window.paypal) {
+        addPayPalScript();
+      } else {
+        setSDKReady(true);
+      }
+    }
+  }, [dispatch, orderId, successPay, order]);
+
+  const successPaymentHandler = (paymentResult) => {
+    dispatch(payOrder(orderId, paymentResult));
+  };
   return loading ? (
     <Loader />
   ) : error ? (
@@ -32,21 +69,30 @@ const OrderScreen = ({ match }) => {
               <strong>Name: </strong>
               {order.user.name}
               <br></br>
-              <a href={`mailto:${order.user.email}`}>
-                Email: {order.user.email}
-              </a>
+              <a href={`mailto:${order.user.email}`}>Email: {order.user.email}</a>
               <p>
                 <strong>Address: </strong>
-                {order.shippingAddress.address}, {order.shippingAddress.city},{" "}
-                {order.shippingAddress.postalCode},{" "}
+                {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.postalCode},{" "}
                 {order.shippingAddress.country}
               </p>
+              {order.isDelivered ? (
+                <Message variant='success'>Delivered on {order.deliveredAt}</Message>
+              ) : (
+                <Message variant='danger'>Not Devlivered</Message>
+              )}
             </ListGroup.Item>
 
             <ListGroup.Item>
               <h2> Payment Method</h2>
-              <strong> Method: </strong>
-              {order.paymentMethod}
+              <p>
+                <strong> Method: </strong>
+                {order.paymentMethod}
+              </p>
+              {order.isPaid ? (
+                <Message variant='success'>Paid on {order.paidAt}</Message>
+              ) : (
+                <Message variant='danger'>Not Paid</Message>
+              )}
             </ListGroup.Item>
 
             <ListGroup.Item>
@@ -59,20 +105,13 @@ const OrderScreen = ({ match }) => {
                     <ListGroup.Item key={item.product}>
                       <Row>
                         <Col md={1}>
-                          <Image
-                            src={item.image}
-                            alt={item.name}
-                            fluid
-                            rounded></Image>
+                          <Image src={item.image} alt={item.name} fluid rounded></Image>
                         </Col>
                         <Col>
-                          <Link to={`/product/${item.product}`}>
-                            {item.name}
-                          </Link>
+                          <Link to={`/product/${item.product}`}>{item.name}</Link>
                         </Col>
                         <Col md={4}>
-                          {item.qty} x&ensp;${" "}
-                          {item.price.toLocaleString("en-US")}
+                          {item.qty} x&ensp;$ {item.price.toLocaleString("en-US")}
                           <br></br>
                           <strong>Total:</strong>
                           {(item.qty * item.price).toLocaleString("en-US")}
@@ -95,18 +134,14 @@ const OrderScreen = ({ match }) => {
               <ListGroup.Item>
                 <Row>
                   <Col>Items</Col>
-                  <Col>
-                    $ {Number(order.itemsPrice).toLocaleString("en-US")}
-                  </Col>
+                  <Col>$ {Number(order.itemsPrice).toLocaleString("en-US")}</Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>
                 <Row>
                   <Col>Shipping</Col>
 
-                  <Col>
-                    $ {Number(order.shippingPrice).toLocaleString("en-US")}
-                  </Col>
+                  <Col>$ {Number(order.shippingPrice).toLocaleString("en-US")}</Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>
@@ -118,15 +153,21 @@ const OrderScreen = ({ match }) => {
               <ListGroup.Item>
                 <Row>
                   <Col>Total</Col>
-                  <Col>
-                    $ {Number(order.totalPrice).toLocaleString("en-US")}
-                  </Col>
+                  <Col>$ {Number(order.totalPrice).toLocaleString("en-US")}</Col>
                 </Row>
               </ListGroup.Item>
-              <ListGroup.Item>
-                {error && <Message variant='danger'>{error}</Message>}
-              </ListGroup.Item>
-              <ListGroup.Item></ListGroup.Item>
+              <ListGroup.Item>{error && <Message variant='danger'>{error}</Message>}</ListGroup.Item>
+
+              {!order.isPaid && (
+                <ListGroup.Item>
+                  {loadingPay && <Loader />}
+                  {!sdkReady ? (
+                    <Loader />
+                  ) : (
+                    <PayPalButton amount={order.totalPrice} onSuccess={successPaymentHandler}></PayPalButton>
+                  )}
+                </ListGroup.Item>
+              )}
             </ListGroup>
           </Card>
         </Col>

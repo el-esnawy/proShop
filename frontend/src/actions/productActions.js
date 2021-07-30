@@ -24,7 +24,7 @@ import axios from "axios";
 //   }
 // };
 
-export const listProducts = (dispatch, getState) => {
+export const listProducts = (dispatch) => {
   const list = async (dispatch) => {
     try {
       dispatch({ type: PRODUCT_LIST_REQUEST });
@@ -33,10 +33,7 @@ export const listProducts = (dispatch, getState) => {
     } catch (error) {
       dispatch({
         type: PRODUCT_LIST_FAIL,
-        payload:
-          error.response && error.response.data.message
-            ? error.response.data.message
-            : error.message,
+        payload: error.response && error.response.data.message ? error.response.data.message : error.message,
       });
     }
   };
@@ -52,10 +49,7 @@ export const listProductDetails = (dispatch, id) => {
     } catch (error) {
       dispatch({
         type: PRODUCT_DETAILS_FAIL,
-        payload:
-          error.response && error.response.data.message
-            ? error.response.data.message
-            : error.message,
+        payload: error.response && error.response.data.message ? error.response.data.message : error.message,
       });
     }
   };

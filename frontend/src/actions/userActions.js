@@ -12,10 +12,13 @@ import {
   USER_UPDATE_PROFILE_FAIL,
   USER_UPDATE_PROFILE_REQUEST,
   USER_UPDATE_PROFILE_SUCCESS,
+  USER_DETAILS_RESET,
 } from "../constants/userConstants";
+
+import { ORDER_LIST_MY_RESET } from "../constants/orderConstants";
 import axios from "axios";
 
-export const login = (email, password) => async (disptach) => {
+export const login = (email, password) => async (disptach, getState) => {
   try {
     disptach({ type: USER_LOGIN_REQUEST });
 
@@ -25,25 +28,17 @@ export const login = (email, password) => async (disptach) => {
       },
     };
 
-    const { data } = await axios.post(
-      "/api/users/login",
-      { email, password },
-      config,
-    );
+    const { data } = await axios.post("/api/users/login", { email, password }, config);
 
     disptach({
       type: USER_LOGIN_SUCCESS,
       payload: data,
     });
-
     localStorage.setItem("userInfo", JSON.stringify(data));
   } catch (error) {
     disptach({
       type: USER_LOGIN_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: error.response && error.response.data.message ? error.response.data.message : error.message,
     });
   }
 };
@@ -51,6 +46,8 @@ export const login = (email, password) => async (disptach) => {
 export const logout = (dispatch) => {
   localStorage.removeItem("userInfo");
   dispatch({ type: USER_LOGOUT });
+  dispatch({ type: USER_DETAILS_RESET });
+  dispatch({ type: ORDER_LIST_MY_RESET });
 };
 
 export const register = (name, email, password) => async (disptach) => {
@@ -63,11 +60,7 @@ export const register = (name, email, password) => async (disptach) => {
       },
     };
 
-    const { data } = await axios.post(
-      "/api/users",
-      { name, email, password },
-      config,
-    );
+    const { data } = await axios.post("/api/users", { name, email, password }, config);
 
     disptach({
       type: USER_REGISTER_SUCCESS,
@@ -81,10 +74,7 @@ export const register = (name, email, password) => async (disptach) => {
   } catch (error) {
     disptach({
       type: USER_REGISTER_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: error.response && error.response.data.message ? error.response.data.message : error.message,
     });
   }
 };
@@ -111,10 +101,7 @@ export const getUserDetails = (id) => async (disptach, getState) => {
   } catch (error) {
     disptach({
       type: USER_DETAILS_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: error.response && error.response.data.message ? error.response.data.message : error.message,
     });
   }
 };
@@ -133,7 +120,6 @@ export const updateUserProfile = (user) => async (disptach, getState) => {
     };
 
     const { data } = await axios.put(`/api/users/profile`, user, config);
-    console.log(user);
 
     disptach({
       type: USER_UPDATE_PROFILE_SUCCESS,
@@ -142,10 +128,7 @@ export const updateUserProfile = (user) => async (disptach, getState) => {
   } catch (error) {
     disptach({
       type: USER_UPDATE_PROFILE_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: error.response && error.response.data.message ? error.response.data.message : error.message,
     });
   }
 };
