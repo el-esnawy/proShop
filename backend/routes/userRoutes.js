@@ -3,20 +3,24 @@ import {
   authUser,
   getUserProfile,
   registerUser,
-  getAllUsers,
   updateUserProfile,
+  getUsers,
+  deleteUser,
+  getUserbyId,
+  updateUserById,
 } from "../controllers/userController.js";
-import { protect } from "../Middleware/authMiddleware.js";
+import { protect, authorizeAdmin } from "../Middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.route("/allusers").get(getAllUsers);
 router.post("/login", authUser);
-router
-  .route("/profile")
-  .get(protect, getUserProfile)
-  .put(protect, updateUserProfile);
+router.route("/profile").get(protect, getUserProfile).put(protect, updateUserProfile);
 
-router.route("/").post(registerUser);
+router.route("/").post(registerUser).get(protect, authorizeAdmin, getUsers);
+router
+  .route("/:id")
+  .delete(protect, authorizeAdmin, deleteUser)
+  .get(protect, authorizeAdmin, getUserbyId)
+  .put(protect, authorizeAdmin, updateUserById);
 
 export default router;

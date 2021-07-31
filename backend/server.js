@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import colors from "colors";
+
 import cookieParser from "cookie-parser";
 
 import connectDB from "./config/db.js";
