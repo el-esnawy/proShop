@@ -11,7 +11,8 @@
     "start:dev": "concurrently \"npm run server\" \"npm run client\"",
     "data:import": "node backend/seeder --import",
     "data:destroy": "node backend/seeder -d",
-    "test": "react-scripts test"
+    "test": "react-scripts test",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend"
   },
   "repository": {
     "type": "git",
