@@ -6,10 +6,25 @@ import thunk from "redux-thunk";
 
 // THE REDUCERS
 import { cartReducer } from "./reducers/cartReducers";
-import { productListReducer, productDetailsReducer } from "./reducers/productReducers";
+import {
+  productListReducer,
+  productDetailsReducer,
+  productDeleteReducer,
+  productCreateReducer,
+  productUpdateReducer,
+  productCreateReviewReducer,
+  productTopRatedReducers,
+} from "./reducers/productReducers";
 import { userLoginReducer, userRegisterReducer, userUpdateProfile, userDeleteReducer } from "./reducers/userReducer";
 import { userDetailsReducer, userListReducer, userUpdateReducer } from "./reducers/userReducer";
-import { orderListMyReducer, orderCreateReducer, orderDetailReducers, orderPayReducer } from "./reducers/orderReducers";
+import {
+  orderListMyReducer,
+  orderCreateReducer,
+  orderDetailReducers,
+  orderPayReducer,
+  orderListReducer,
+  orderDeliverReducer,
+} from "./reducers/orderReducers";
 
 const cartItemsFromStorage = localStorage.getItem("cartItems") ? JSON.parse(localStorage.getItem("cartItems")) : [];
 
@@ -25,12 +40,19 @@ const paymentMethodFromLocalStoreage = localStorage.getItem("paymentMethod")
 
 const reducer = combineReducers({
   cart: cartReducer,
+  productList: productListReducer,
+  productDelete: productDeleteReducer,
+  productDetails: productDetailsReducer,
+  productCreate: productCreateReducer,
+  productUpdate: productUpdateReducer,
+  productReviewCreate: productCreateReviewReducer,
+  productTopRated: productTopRatedReducers,
   orderCreate: orderCreateReducer,
   orderDetails: orderDetailReducers,
   orderListMy: orderListMyReducer,
+  orderList: orderListReducer,
+  orderDeliver: orderDeliverReducer,
   orderPay: orderPayReducer,
-  productList: productListReducer,
-  productDetails: productDetailsReducer,
   userLogin: userLoginReducer,
   userRegister: userRegisterReducer,
   userDetails: userDetailsReducer,

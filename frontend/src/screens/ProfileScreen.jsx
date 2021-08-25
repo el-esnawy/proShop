@@ -29,12 +29,14 @@ const ProfileScreen = ({ history }) => {
   const { loading: loadingOrders, error: errorOrders, orders } = orderMyList;
 
   useEffect(() => {
+    if (user && userInfo) {
+      dispatch(listMyOrders());
+    }
     if (!userInfo) {
       history.push("/login");
     } else {
       if (!user || !user.name) {
         dispatch(getUserDetails("profile"));
-        dispatch(listMyOrders());
       } else {
         setName(user.name);
         setemail(user.email);
@@ -102,7 +104,9 @@ const ProfileScreen = ({ history }) => {
               type='password'
               placeholder='Confirm Password'
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}></Form.Control>
+              onChange={(e) =>
+                setConfirmPassword(e.target.value)
+              }></Form.Control>
           </Form.Group>
 
           <Button type='submit' variant='primary'>
@@ -141,14 +145,18 @@ const ProfileScreen = ({ history }) => {
                       {order.isPaid ? (
                         order.paidAt.substring(0, 10)
                       ) : (
-                        <i className='fas fa-times' style={{ color: "red" }}></i>
+                        <i
+                          className='fas fa-times'
+                          style={{ color: "red" }}></i>
                       )}
                     </td>
                     <td>
                       {order.isDelivered ? (
                         order.deliveredAt.substring(0, 10)
                       ) : (
-                        <i className='fas fa-times' style={{ color: "red" }}></i>
+                        <i
+                          className='fas fa-times'
+                          style={{ color: "red" }}></i>
                       )}
                     </td>
                     <td>
